@@ -2,11 +2,11 @@
 <head>
     <title>Pusher Test</title>
 
-    <link rel="stylesheet" href="http://10.10.1.1:3000/frontend.css">
+    <link rel="stylesheet" href="http://127.0.0.1:3000/frontend.css">
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
-    <script src="http://10.10.1.1:3000/frontend.js"></script>
+    <script src="http://127.0.0.1:3000/frontend.js"></script>
     <script>
         // Enable pusher logging
         Pusher.logToConsole = true;
@@ -15,6 +15,11 @@
         var pusher = new Pusher('1f0c380b2e3d3e2d30a5', {
             cluster: 'eu', // Specifies that our server is located in Pusher's eu cluster
             forceTLS: true // Tells the server that we only accept a secure connection
+        });
+
+        var socketId = null;
+        pusher.connection.bind('connected', function() {
+            socketId = pusher.connection.socket_id;
         });
 
         // Subscribe to the channel where "person" events are fired
@@ -37,14 +42,15 @@
   <hr>
   <h2>Create Person</h2>
   <div id="form-wrapper">
-      <form action="JavaScript:createPerson()">
+      <form id="person-form" action="JavaScript:createPerson()">
           <label for="name">Name:</label>
-          <input type="text" id="name" name="name">
+          <input type="text" id="name" name="name" maxlength="200">
           <label for="age">Age:</label>
-          <input type="text" id="age" name="age">
+          <input type="text" id="age" name="age" maxlength="200">
           <label for="eye-color">Eye color:</label>
-          <input type="text" id="eye-color" name="eye-color">
+          <input type="text" id="eye-color" name="eye-color" maxlength="200">
           <input type="submit" id="submit-btn" value="Create">
+          <button type="button" id="cancel-btn" onclick="JavaScript:disableEditMode()">Cancel</button>
       </form>
   </div>
   <hr>

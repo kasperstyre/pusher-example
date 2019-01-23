@@ -1,4 +1,8 @@
-var personUpdateMode = false;
+var serverAddress = "10.10.1.1:3000";
+
+$(document).ready(function() {
+    $("#name").focus();
+});
 
 function addPerson(person) {
     var container = $("<div></div>").addClass("container")
@@ -6,7 +10,8 @@ function addPerson(person) {
         .append($("<div></div>").addClass("name").text("Name: " + person.name))
         .append($("<div></div>").addClass("age").text("Age: " + person.age))
         .append($("<div></div>").addClass("eye-color").text("Eye color: " + person.eye_color))
-        .append($("<button></button>").text("Delete").addClass("delete-btn").click(function() { deletePerson(person); }));
+        .append($("<button></button>").text("Delete").addClass("delete-btn").click(function() { deletePerson(person); }))
+        .append($("<button></button>").text("Update").addClass("update-btn").click(function() { enableEditMode(person); }));
 
     $("#wrapper").append(container);
 }
@@ -20,15 +25,15 @@ function removePerson(person) {
 function getPersonUpdate(person) {
     var personContainer = $(".id:contains(" + person.id + ")").parent();
 
-    personContainer.children(".name").text(person.name);
-    personContainer.children(".age").text(person.age);
-    personContainer.children(".eye-color").text(person.eye_color);
+    personContainer.children(".name").text("Name: " + person.name);
+    personContainer.children(".age").text("Age: " + person.age);
+    personContainer.children(".eye-color").text("Eye color: " + person.eye_color);
 }
 
 function getAllPersons() {
     $.ajax({
         type: "GET",
-        url: "http://10.10.1.1:3000/person",
+        url: "http://" + serverAddress + "/person",
         success: function(data) {
             var result = JSON.parse(data);
 
@@ -46,16 +51,43 @@ function createPerson() {
 
     $.ajax({
         type: "POST",
-        url: "http://10.10.1.1:3000/person",
+        url: "http://" + serverAddress + "/person",
         data: {
             "name": name,
             "age": age,
-            "eye_color": eyeColor
+            "eye_color": eyeColor,
+            "socket_id": (socketId) ? socketId : null
         },
         success: function(data) {
             alert("Person was created!");
             addPerson(JSON.parse(data));
             $("#name, #age, #eye-color").val("");
+            $("#name").focus();
+        }
+    });
+}
+
+function updatePerson() {
+    var personId = $("#person-form").data("personId");
+    var name = $("#name").val();
+    var age = $("#age").val();
+    var eyeColor = $("#eye-color").val();
+
+    $.ajax({
+        type: "PUT",
+        url: "http://" + serverAddress + "/person/" + personId,
+        data: {
+            "name": name,
+            "age": age,
+            "eye_color": eyeColor,
+            "socket_id": (socketId) ? socketId : null
+        },
+        success: function(data) {
+            var person = JSON.parse(data);
+
+            alert("Person with ID = " + person.id + " was updated!");
+            getPersonUpdate(person);
+            disableEditMode();
         }
     });
 }
@@ -63,7 +95,10 @@ function createPerson() {
 function deletePerson(person) {
     $.ajax({
         type: "DELETE",
-        url: "http://10.10.1.1:3000/person/" + person.id,
+        url: "http://" + serverAddress + "/person/" + person.id,
+        data: {
+            "socket_id": (socketId) ? socketId : null
+        },
         success: function() {
             alert("Person with ID = " + person.id + " was deleted!");
             removePerson(person);
@@ -71,17 +106,30 @@ function deletePerson(person) {
     });
 }
 
-function updatePerson(person) {
-    $.ajax({
-        type: "PUT",
-        url: "http://10.10.1.1:3000/person/" + person.id,
-        data: person,
-        success: function() {
-            alert("Person with ID = " + person.id + " was updated!");
-        }
-    });
+
+function enableEditMode(person) {
+    $("#submit-btn").val("Update");
+    $("#cancel-btn").show();
+
+    $("#person-form").data("personId", person.id);
+    $("#person-form").attr("action", "JavaScript:updatePerson()");
+    
+    $("#name").val(person.name);
+    $("#age").val(person.age);
+    $("#eye-color").val(person.eye_color);
+
+    $("#name").focus();
 }
 
-function toggleEditMode() {
+function disableEditMode() {
+
+    $("#submit-btn").val("Create");
+    $("#cancel-btn").hide();
+
+    $("#person-form").data("personId", null);
+    $("#person-form").attr("action", "JavaScript:createPerson()");
     
+    $("#name, #age, #eye-color").val("");
+
+    $("#name").focus();
 }

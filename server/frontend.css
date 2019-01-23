@@ -24,6 +24,11 @@ hr {
 
 #submit-btn {
     margin-top: 10px;
+    display: inline-block;
+}
+
+#cancel-btn {
+    display: none;
 }
 
 .container {
