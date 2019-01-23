@@ -2,148 +2,31 @@
 <head>
     <title>Pusher Test</title>
 
-    <style>
-        h1, h2 {
-            text-align: center;
-        }
-
-        form {
-            display: inline-block;
-            text-align: left;
-            border: 1px solid black;
-            padding: 5px;
-        }
-
-        form > input, form > label {
-            display: block;
-        }
-
-        hr {
-            margin: 25px 0;
-        }
-
-        #form-wrapper {
-            display: block;
-            text-align: center;
-        }
-
-        #submit-btn {
-            margin-top: 10px;
-        }
-
-        .container {
-            margin: 10px;
-            border: 1px solid black;
-            padding: 5px;
-        }
-
-        .delete-btn {
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="http://10.10.1.1:3000/frontend.css">
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
+    <script src="http://10.10.1.1:3000/frontend.js"></script>
     <script>
-        function addPerson(person) {
-            console.log(person);
-            var container = $("<div></div>").addClass("container")
-                .append($("<div></div>").addClass("id").text("ID: " + person.id))
-                .append($("<div></div>").addClass("name").text("Name: " + person.name))
-                .append($("<div></div>").addClass("age").text("Age: " + person.age))
-                .append($("<div></div>").addClass("eye-color").text("Eye color: " + person.eye_color))
-                .append($("<button></button>").text("Delete").addClass("delete-btn").click(function() { deletePerson(person); }));
-
-            $("#wrapper").append(container);
-        }
-
-        function removePerson(person) {
-            var personContainer = $(".id:contains(" + person.id + ")").parent();
-
-            personContainer.remove();
-        }
-
-        function getPersonUpdate(person) {
-            var personContainer = $(".id:contains(" + person.id + ")").parent();
-
-            personContainer.children(".name").text(person.name);
-            personContainer.children(".age").text(person.age);
-            personContainer.children(".eye-color").text(person.eye_color);
-        }
-
-        function getAllPersons() {
-            var getPersons = $.ajax({
-                type: "GET",
-                url: "http://10.10.1.1:3000/person",
-                success: function(data) {
-                    var result = JSON.parse(data);
-
-                    for (var i = 0; i < result.length; i++) {
-                        addPerson(result[i]);
-                    }
-                }
-            });
-        }
-
-        function createPerson() {
-            var name = $("#name").val();
-            var age = $("#age").val();
-            var eyeColor = $("#eye-color").val();
-
-            $.ajax({
-                type: "POST",
-                url: "http://10.10.1.1:3000/person",
-                data: {
-                    "name": name,
-                    "age": age,
-                    "eye_color": eyeColor
-                },
-                success: function(data) {
-                    alert("Person was created!");
-                    addPerson(JSON.parse(data));
-                    $("#name, #age, #eye-color").val("");
-                }
-            });
-        }
-
-        function deletePerson(person) {
-            $.ajax({
-                type: "DELETE",
-                url: "http://10.10.1.1:3000/person/" + person.id,
-                success: function() {
-                    alert("Person with ID = " + person.id + " was deleted!");
-                    removePerson(person);
-                }
-            });
-        }
-
-        function updatePerson(person) {
-            $.ajax({
-                type: "PUT",
-                url: "http://10.10.1.1:3000/person/" + person.id,
-                data: person,
-                success: function() {
-                    alert("Person with ID = " + person.id + " was updated!");
-                }
-            });
-        }
-    </script>
-    <script>
-        // Enable pusher logging - don't include this in production
+        // Enable pusher logging
         Pusher.logToConsole = true;
 
+        // Create a new instance of Pusher that is connected to our websocket server
         var pusher = new Pusher('1f0c380b2e3d3e2d30a5', {
-            cluster: 'eu',
-            forceTLS: true
+            cluster: 'eu', // Specifies that our server is located in Pusher's eu cluster
+            forceTLS: true // Tells the server that we only accept a secure connection
         });
 
+        // Subscribe to the channel where "person" events are fired
         var channel = pusher.subscribe('person-channel');
 
-        channel.bind('person-created', function(data) {
-            //alert(JSON.stringify(data));
+        // Define a function that gets executed
+        // when the "person-created" event is triggered by the server
+        channel.bind('person-created', function(person) {
+            // Code that handles person creation
         });
 
-
+        // Once all the html has loaded, receive the person list from the server
         $(document).ready(function() {
             getAllPersons();
         });
