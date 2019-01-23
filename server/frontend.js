@@ -28,6 +28,8 @@ function getPersonUpdate(person) {
     personContainer.children(".name").text("Name: " + person.name);
     personContainer.children(".age").text("Age: " + person.age);
     personContainer.children(".eye-color").text("Eye color: " + person.eye_color);
+
+    personContainer.children(".update-btn").off("click").click(function() { enableEditMode(person) });
 }
 
 function getAllPersons() {
