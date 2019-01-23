@@ -2,11 +2,11 @@
 <head>
     <title>Pusher Test</title>
 
-    <link rel="stylesheet" href="http://127.0.0.1:3000/frontend.css">
+    <link rel="stylesheet" href="http://10.10.1.1:3000/frontend.css">
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
-    <script src="http://127.0.0.1:3000/frontend.js"></script>
+    <script src="http://10.10.1.1:3000/frontend.js"></script>
     <script>
         // Enable pusher logging
         Pusher.logToConsole = true;
@@ -17,6 +17,10 @@
             forceTLS: true // Tells the server that we only accept a secure connection
         });
 
+        // Since changes to the person list are handled locally already,
+        // we need to get the id of the socket we connect to the server with.
+        // When we send this to the server, the server then makes sure
+        // that every client except the sender receives the event.
         var socketId = null;
         pusher.connection.bind('connected', function() {
             socketId = pusher.connection.socket_id;

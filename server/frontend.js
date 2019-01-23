@@ -106,7 +106,6 @@ function deletePerson(person) {
     });
 }
 
-
 function enableEditMode(person) {
     $("#submit-btn").val("Update");
     $("#cancel-btn").show();

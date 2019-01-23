@@ -40,3 +40,7 @@ hr {
 .delete-btn {
     margin-top: 10px;
 }
+
+.name, .age, .eye-color {
+    overflow: hidden;
+}
